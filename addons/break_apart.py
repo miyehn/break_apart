@@ -7,6 +7,7 @@ bl_info = {
 }
 
 import bpy
+import os
 
 #=========================== OPERATORS =============================
 
@@ -117,21 +118,28 @@ class BA_OT_break_apart(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class BA_OT_open_export_folder(bpy.types.Operator):
+	bl_idname="ba.open_export_folder"
+	bl_label="Open Folder"
+	bl_options={'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		folder = BA_OT_export_fbx.getExportFolder()
+		if not os.path.exists(folder):
+			self.report({'WARNING'}, "This folder doesn't exist yet.")
+			return {'FINISHED'}
+
+		os.startfile(folder)
+		return {'FINISHED'}
+
+
 class BA_OT_export_fbx(bpy.types.Operator):
 	bl_idname="ba.export_fbx"
 	bl_label="Export FBX"
 	bl_options={'REGISTER', 'UNDO'}
 
-	@classmethod
-	def description(cls, context, properties):
-		return "Process and export selected objects to fbx"
-
-	def execute(self, context):
-
-		if not bpy.data.is_saved:
-			self.report({'WARNING'}, "export failed: .blend file is not saved to disc yet")
-			return {'FINISHED'}
-
+	@staticmethod
+	def getExportFolder():
 		# see: https://docs.blender.org/api/current/bpy.ops.export_scene.html
 		directory = bpy.context.scene.baProps.exportDirectory
 		lastChar = ''
@@ -143,9 +151,26 @@ class BA_OT_export_fbx(bpy.types.Operator):
 		if lastChar == '/' or lastChar == '\\':
 			directory = directory[:-1]
 
-		filename = bpy.context.scene.baProps.exportFilename
+		fullDirectory = bpy.path.abspath("//" + directory)
+		return fullDirectory
 
-		fullPath=bpy.path.abspath("//" + directory + '\\' + filename + '.fbx')
+	@classmethod
+	def description(cls, context, properties):
+		return "Process and export selected objects to fbx"
+
+	def execute(self, context):
+
+		if not bpy.data.is_saved:
+			self.report({'WARNING'}, "export failed: .blend file is not saved to disc yet")
+			return {'FINISHED'}
+
+		fullDirectory = BA_OT_export_fbx.getExportFolder()
+
+		if not os.path.exists(fullDirectory):
+			os.makedirs(fullDirectory)
+
+		filename = bpy.context.scene.baProps.exportFilename
+		fullPath = fullDirectory + '\\' + filename + '.fbx'
 
 		# actually operate on the scene:
 
@@ -176,7 +201,6 @@ class BA_OT_export_fbx(bpy.types.Operator):
 		# now: actually export...
 		bpy.ops.export_scene.fbx(
 			filepath=fullPath,
-			check_existing=True,
 			use_selection=True,
 			object_types={'EMPTY', 'MESH'},
 			use_triangles=True
@@ -256,6 +280,7 @@ class BA_PT_tools_panel(bpy.types.Panel):
 
 		row = self.layout.row()
 		row.operator("ba.export_fbx")
+		row.operator("ba.open_export_folder")
 
 #=========================== KEYMAPS ===============================
 
@@ -300,6 +325,7 @@ classes = (
 	BA_OT_merge_by_ba_threshold,
 	BA_OT_break_apart,
 	BA_OT_export_fbx,
+	BA_OT_open_export_folder,
 	BA_PT_tools_panel
 )
 

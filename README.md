@@ -10,11 +10,11 @@ It's the threshold used for when you press shift + S to merge vertices by distan
 
 ## Break Apart
 
-Once the addon is installed,
+Set the object to break apart as "Target",
 
- - set the object to break apart as "Target",
- - select the cookie cutter object,
- - hit the "break apart" button.
+Select the cookie cutter object,
+
+Hit the "break apart" button.
 
 [Example video](media/break.mp4)
 
@@ -22,7 +22,14 @@ Btw [here](media/boulder_cutter.fbx) is a boulder mesh I made.
 
 ## Export FBX
 
-To be documented
+Set the output folder (relative to the current .blend file) and fbx filename (without extension). 
+
+Select the mesh(es) you wish to export.
+ - Note that the last selected mesh (aka active object) will be used to determine he anchor position of exported fbx.
+
+Hit "Export FBX".
+ - If you had only one mesh selected, it will be renamed to the filename
+ - If you had multiple meshes, an plain axes node called your filename will be created, with all your meshes as its children.
 
 ## Hotkeys
 
