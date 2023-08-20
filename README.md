@@ -1,4 +1,4 @@
-Last updated: 7/30/23
+Last updated: 8/17/23
 
 [Latest version download](addons/break_apart.py), [link to repository](https://github.com/miyehn/break_apart)
 
@@ -36,12 +36,17 @@ Hit "Export FBX".
 These are actions I use a lot when modeling. Let me know if you'd like to add something else.
 
  - shift + B: break apart
- - shift + L: select linked
+ - shift + Q: select linked
  - shift + M: select non-manifold (need to be in vertex or edge editing mode)
  - shift + N: toggle face orientation overlay
  - shift + T: triangulate selected faces
  - shift + V: merge (vertices) at last
- - shift + S: merge by distance with specified threshold
+ - shift + D: merge by distance with specified threshold
+ - shift + W: unwrap UV
+ - shift + S: toggle UV seam for selected edges
+ - S: toggle sharp for selected edges
+ - right arrow: select next item based on topology
+ - left arrow: select prev item based on topology
 
 ## Contact
 

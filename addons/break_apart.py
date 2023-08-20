@@ -1,8 +1,9 @@
 bl_info = {
 	"name": "Break Apart",
 	"author": "miyehn",
- 	"version" : (0, 2, 0),
+ 	"version" : (0, 3, 0),
 	"blender": (3, 6, 0),
+	"doc_url": "https://miyehn.me/break_apart/",
 	"category": "Shepherds",
 }
 
@@ -13,6 +14,50 @@ import os
 
 def prnt(ctx, obj):
 	ctx.report({'INFO'}, obj.name)
+
+class BA_OT_toggle_seam(bpy.types.Operator):
+	bl_idname="ba.toggle_seam"
+	bl_label="Toggle Seam"
+	bl_options={'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		bpy.ops.object.mode_set(mode='OBJECT')
+
+		obj = bpy.context.active_object
+		allSeam = True
+		numSelected = 0
+		for e in obj.data.edges:
+			if e.select:
+				numSelected += 1
+				if not e.use_seam:
+					allSeam = False
+
+		bpy.ops.object.mode_set(mode='EDIT')
+		bpy.ops.mesh.mark_seam(clear=allSeam)
+
+		return {'FINISHED'}
+
+class BA_OT_toggle_sharp(bpy.types.Operator):
+	bl_idname="ba.toggle_sharp"
+	bl_label="Toggle Sharp"
+	bl_options={'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		bpy.ops.object.mode_set(mode='OBJECT')
+
+		obj = bpy.context.active_object
+		allSharp = True
+		numSelected = 0
+		for e in obj.data.edges:
+			if e.select:
+				numSelected += 1
+				if not e.use_edge_sharp:
+					allSharp = False
+
+		bpy.ops.object.mode_set(mode='EDIT')
+		bpy.ops.mesh.mark_sharp(clear=allSharp)
+
+		return {'FINISHED'}
 
 
 class BA_OT_merge_by_ba_threshold(bpy.types.Operator):
@@ -290,21 +335,26 @@ def init_keymaps():
 	kc = bpy.context.window_manager.keyconfigs.addon
 	km = kc.keymaps.new(name="3D View", space_type="VIEW_3D")
 
-	# break apart
+	# modeling & uv:
+
+	kmi_selectLinked = km.keymap_items.new("mesh.select_linked", 'Q', 'PRESS', shift=True)
+
+	# modeling
+
 	kmi_breakApart = km.keymap_items.new("ba.break_apart", 'B', 'PRESS', shift=True)
-	# select linked 
-	kmi_selectLinked = km.keymap_items.new("mesh.select_linked", 'L', 'PRESS', shift=True)
-	# select non-manifold
 	kmi_selectNonManifold = km.keymap_items.new("mesh.select_non_manifold", 'M', 'PRESS', shift=True)
-	# toggle face orientations
 	kmi_toggleFaceOrientation = km.keymap_items.new("ba.toggle_face_orientation", 'N', 'PRESS', shift=True)
-	# triangualte (face)
 	kmi_triangulate = km.keymap_items.new("mesh.quads_convert_to_tris", 'T', 'PRESS', shift=True)
-	# merge at last
 	kmi_mergeLast = km.keymap_items.new("mesh.merge", 'V', 'PRESS', shift=True)
 	kmi_mergeLast.properties.type='LAST'
-	# merge by distance
-	kmi_mergeByDist = km.keymap_items.new("ba.merge_by_ba_threshold", 'S', 'PRESS', shift=True)
+	kmi_mergeByDist = km.keymap_items.new("ba.merge_by_ba_threshold", 'D', 'PRESS', shift=True)
+
+	# uv
+	kmi_unwrap = km.keymap_items.new("uv.unwrap", 'W', 'PRESS', shift=True)
+	kmi_seam = km.keymap_items.new("ba.toggle_seam", 'S', 'PRESS', shift=True)
+	kmi_sharp = km.keymap_items.new("ba.toggle_sharp", 'S', 'PRESS', shift=False)
+	kmi_selectPrevActive = km.keymap_items.new("mesh.select_prev_item", 'LEFT_ARROW', 'PRESS', shift=False)
+	kmi_selectNextActive = km.keymap_items.new("mesh.select_next_item", 'RIGHT_ARROW', 'PRESS', shift=False)
 
 	kmi = [
 		kmi_breakApart,
@@ -314,6 +364,9 @@ def init_keymaps():
 		kmi_triangulate,
 		kmi_mergeLast,
 		kmi_mergeByDist,
+		kmi_unwrap,
+		kmi_selectPrevActive,
+		kmi_selectNextActive
 	]
 	return km, kmi
 
@@ -321,6 +374,8 @@ def init_keymaps():
 
 classes = (
 	BAProperties,
+	BA_OT_toggle_seam,
+	BA_OT_toggle_sharp,
 	BA_OT_toggle_face_orientation,
 	BA_OT_merge_by_ba_threshold,
 	BA_OT_break_apart,
