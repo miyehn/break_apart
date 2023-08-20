@@ -6,7 +6,7 @@ Last updated: 8/17/23
 
 ## Merge threshold
 
-It's the threshold used for when you press shift + S to merge vertices by distance.
+It's the threshold used for when you press shift + D to merge vertices by distance.
 
 ## Break Apart
 
